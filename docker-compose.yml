@@ -1,0 +1,32 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    entrypoint: >
+      /bin/sh -c '
+      ollama serve &
+      sleep 10 &&
+      ollama pull llama3.1 &&
+      ollama pull qwen2.5-coder &&
+      tail -f /dev/null
+      '
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+volumes:
+  ollama:
+  open-webui:
